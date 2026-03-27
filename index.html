@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Auth Demo</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 320px;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      color: white;
+    }
+
+    .login-btn {
+      background: #007bff;
+    }
+
+    .register-btn {
+      background: #28a745;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .result {
+      margin-top: 15px;
+      font-size: 14px;
+      word-wrap: break-word;
+      padding: 10px;
+      border-radius: 5px;
+    }
+
+    .success {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .test-buttons {
+      margin-top: 10px;
+    }
+
+    .test-buttons button {
+      background: #6c757d;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Auth Demo</h2>
+
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
+
+  <button class="login-btn" onclick="login()">Login</button>
+  <button class="register-btn" onclick="register()">Register</button>
+
+  <div id="result" class="result"></div>
+</div>
+
+<script>
+const API_URL = "https://localhost:8443";
+
+// Helper to show result
+function showResult(message, isSuccess) {
+  const resultDiv = document.getElementById("result");
+  resultDiv.innerText = message;
+  resultDiv.className = "result " + (isSuccess ? "success" : "error");
+}
+
+// Login
+async function login() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    const res = await fetch(`${API_URL}/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ username, password })
+    });
+
+    const text = await res.text();
+    showResult(text, res.status === 200);
+
+  } catch (err) {
+    showResult("Error: " + err.message, false);
+  }
+}
+
+// Register
+async function register() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+
+  try {
+    const res = await fetch(`${API_URL}/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ username, password })
+    });
+
+    const text = await res.text();
+    showResult(text, res.status === 201);
+
+  } catch (err) {
+    showResult("Error: " + err.message, false);
+  }
+}
+
+</script>
+
+</body>
+</html>
