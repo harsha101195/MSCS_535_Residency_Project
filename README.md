@@ -37,3 +37,8 @@ curl -k -X POST https://localhost:8443/register \
 curl -k -X POST https://localhost:8443/login \
 -H "Content-Type: application/json" \
 -d '{"username":"user1","password":"pass123"}'
+
+## WEB UI
+
+Registration and Login can also be done through the UI. To interact with the UI,
+open a browser and do ```cmd + o```. Then select the index.html from project1 folder.
