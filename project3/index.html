@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project 3 — Payment demo (secure patterns)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; background: #f0f4f8; margin: 0; padding: 24px; }
+    .wrap { max-width: 420px; margin: 0 auto; background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,.08); }
+    h1 { font-size: 1.25rem; margin: 0 0 16px; }
+    h2 { font-size: 0.95rem; color: #555; margin: 20px 0 8px; }
+    input, textarea { width: 100%; box-sizing: border-box; padding: 10px; margin: 6px 0 12px; border: 1px solid #ccc; border-radius: 6px; }
+    textarea { min-height: 64px; resize: vertical; }
+    button { width: 100%; padding: 10px; margin-top: 6px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; color: #fff; }
+    .btn-login { background: #2563eb; }
+    .btn-reg { background: #16a34a; }
+    .btn-pay { background: #7c3aed; }
+    .btn-hist { background: #475569; }
+    #out { margin-top: 16px; padding: 12px; border-radius: 8px; font-size: 14px; white-space: pre-wrap; word-break: break-word; }
+    .ok { background: #dcfce7; color: #166534; }
+    .bad { background: #fee2e2; color: #991b1b; }
+    .hint { font-size: 12px; color: #64748b; margin-top: 16px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Project 3 — Payment demo</h1>
+    <p style="margin:0 0 12px; color:#64748b; font-size:14px;">Same security ideas as Project 1: parameterized SQL on the server; safe display with <code>innerText</code> here.</p>
+
+    <h2>Account</h2>
+    <input type="text" id="username" placeholder="Username" autocomplete="username">
+    <input type="password" id="password" placeholder="Password" autocomplete="current-password">
+    <button type="button" class="btn-login" onclick="login()">Login</button>
+    <button type="button" class="btn-reg" onclick="register()">Register</button>
+
+    <h2>Pay (demo — no real card)</h2>
+    <input type="number" id="amount" placeholder="Amount (cents)" min="1" step="1">
+    <textarea id="note" placeholder="Merchant note (try &lt;script&gt; — should not execute)"></textarea>
+    <button type="button" class="btn-pay" onclick="pay()">Record payment</button>
+    <button type="button" class="btn-hist" onclick="history()">Load payment history</button>
+
+    <div id="out" class="bad" style="display:none;"></div>
+    <p class="hint">
+      <strong>Relation to Project 1:</strong> Project 1 sends JSON to <code>/login</code> and <code>/register</code> and shows the response with <code>innerText</code>.
+      Project 3 adds <code>/pay</code> and <code>/history</code>; notes and JSON are still rendered as text, not HTML, which limits XSS if the server echoed user content.
+    </p>
+  </div>
+  <script>
+    const API = "http://127.0.0.1:8444";
+
+    function show(msg, ok) {
+      const el = document.getElementById("out");
+      el.style.display = "block";
+      el.className = ok ? "ok" : "bad";
+      // Same pattern as Project 1 showResult: innerText, not innerHTML — script tags in strings stay inert.
+      el.innerText = msg;
+    }
+
+    async function post(path, body) {
+      const res = await fetch(API + path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const text = await res.text();
+      let data;
+      try { data = JSON.parse(text); } catch { data = { raw: text }; }
+      return { res, data };
+    }
+
+    async function register() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const { res, data } = await post("/register", { username, password });
+      show(data.message || data.error || JSON.stringify(data), res.status === 201);
+    }
+
+    async function login() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const { res, data } = await post("/login", { username, password });
+      show(data.message || data.error || JSON.stringify(data), res.status === 200);
+    }
+
+    async function pay() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const amount_cents = document.getElementById("amount").value;
+      const merchant_note = document.getElementById("note").value;
+      const { res, data } = await post("/pay", {
+        username,
+        password,
+        amount_cents: parseInt(amount_cents, 10),
+        merchant_note,
+      });
+      const line = data.message || data.error || JSON.stringify(data, null, 2);
+      show(line, res.status === 200);
+    }
+
+    async function history() {
+      const username = document.getElementById("username").value;
+      const password = document.getElementById("password").value;
+      const { res, data } = await post("/history", { username, password });
+      const line = data.payments
+        ? JSON.stringify(data.payments, null, 2)
+        : (data.error || JSON.stringify(data));
+      show(line, res.status === 200);
+    }
+  </script>
+</body>
+</html>
