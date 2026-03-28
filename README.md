@@ -44,3 +44,25 @@ curl -k -X POST https://localhost:8443/login \
 
 Registration and Login can also be done through the UI. To interact with the UI,
 open a browser and do ```cmd + o```. Then select the index.html from project1 folder.
+
+## Project 2
+
+This project demonstrates common JavaScript security vulnerabilities and how to fix them. The application provides both **unsafe (vulnerable)** and **safe (secure)** implementations to clearly show the differences.
+
+
+### Features
+
+- Code injection via web applications (XSS)
+- Dynamic evaluation using eval()
+- Secure alternatives to eval()
+- Content Security Policy (CSP)
+
+### How to Run
+
+```bash
+npm install
+node app.js
+```
+
+Open browser and go to:
+http://localhost:3000
