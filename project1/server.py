@@ -92,7 +92,7 @@ class SimpleHandler(BaseHTTPRequestHandler):
             self.end_headers()
             self.wfile.write(b"Error")
 
-    #Login user (SECURE)
+    #Login user
     def handle_login(self, data):
         username = data.get("username")
         password = data.get("password")
@@ -108,7 +108,7 @@ class SimpleHandler(BaseHTTPRequestHandler):
             conn = get_db_connection()
             cur = conn.cursor()
 
-            # ✅ Parameterized query → prevents SQL injection
+            #Parameterized query -> prevents SQL injection
             cur.execute(
                 "SELECT password_hash FROM users WHERE username = %s",
                 (username,)
