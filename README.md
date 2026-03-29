@@ -7,9 +7,6 @@
 - PostgreSQL
 - psycopg
 
-Install requirements:
-pip install -r requirements.txt
-
 ### Setup Database
 1. Create database:
 createdb companydb
